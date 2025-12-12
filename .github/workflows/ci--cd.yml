@@ -1,0 +1,53 @@
+name: C Program CI/CD
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install GCC & Make
+      run: sudo apt update && sudo apt install gcc make -y
+
+    - name: Build program
+      run: make
+
+    - name: Test build success
+      run: |
+        if [ -f "program" ]; then
+          chmod +x program
+          echo "Build successful!"
+        else
+          echo "Build failed"
+          exit 1
+        fi
+
+    - name: Upload program artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: program-binary
+        path: program
+
+
+  cd:
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download binary
+      uses: actions/download-artifact@v3
+      with:
+        name: program-binary
+        path: deploy
+
+    - name: Deployment done
+      run: echo "CD running successfully!"
