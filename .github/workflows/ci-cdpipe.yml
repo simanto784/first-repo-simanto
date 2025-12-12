@@ -1,0 +1,27 @@
+name: C CI/CD
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install tools
+      run: sudo apt update && sudo apt install gcc make -y
+
+    - name: Build
+      run: make
+
+    - name: Check binary exists
+      run: |
+        if [ -f "./program" ]; then
+          echo "Build OK"
+        else
+          echo "Build failed"
+          exit 1
+        fi
